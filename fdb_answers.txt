@@ -1,0 +1,10 @@
+Q1: FoundationDB separates the Transaction Management System from the Storage System to enable independent scaling. The TMS handles timestamp management, commit acceptance, and conflict detection. The Storage System handles data storage and read serving. 
+
+Q2:
+Resolvers detect read-write conflicts. This happens after the transaction has its read and write sets and after a commit version is assigned, but before the transaction is actually committed. 
+
+Q3: The read version tells the transaction from what point in the database to read from. It makes sure all your reads come from the same consistent snapshot of the database without conflicting with other transactions since they do not write data. It prevents a user from seeing partial or inconsistent data and with conflict detection it helps guarantee strict serializability.
+
+Q4: Snapshot reads are different because they are not added to the transaction’s read set, so they are not used in conflict detection. Standard reads are included in the read set and are checked during conflict detection which helps prevent anomalies and enforce serializability. I would use snapshot reads when strict serializability is not required for certain keys, like for background tasks. Otherwise, I would use standard reads because they enforce the conflict detection rules.
+
+Q5: Recovery is cheap because FoundationDB does not require redo/undo log replay during recovery. Instead, it just recruits a new Transaction System generation and determines the recovery version from the Log System. StorageServers continue pulling data in the background, so recovery is basically a fast metadata operation instead of reprocessing a lot of data.
